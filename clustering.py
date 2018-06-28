@@ -1,5 +1,8 @@
 import numpy as np
 
+def update_reference(totem, index):
+    return totem[index][1] - totem[index][0], totem[index][1], totem[index][0]
+
 threshold = 0.25
 
 # Opening file
@@ -9,9 +12,10 @@ t = 0
 # Through every totem
 clusters = []
 for totem in file:
+
     # Ordering a totem
     totem = sorted(totem ,key=lambda x: x[0])
-    print("Number of boxes in image %d: %d" % (t, len(totem)))
+    #print("Number of boxes in image %d: %d" % (t, len(totem)))
     t+=1
 
     # Empty cluster list
@@ -21,16 +25,16 @@ for totem in file:
     index = 0
     while True:
 
-        top_y = totem[index][0]
-        bottom_y = totem[index][1]
+        # Let's start founding boxes that match with the index-th box 
+        # A important NOTE in this code is: bottom_y is a bigger value than
+        # top_y.
+        height, bottom_y, top_y = update_reference(totem, index)
 
-        height = bottom_y - top_y
-        
         for j in range(index, len(totem)):
-            #print(totem[j])
             diff_top_y = top_y - totem[j][0] 
             diff_bottom_y = bottom_y - totem[j][1] 
 
+            # naive way of getting absolute value
             if diff_top_y < 0:
                 diff_top_y *= -1
 
@@ -42,6 +46,7 @@ for totem in file:
                 cluster = []
                 break
             else:
+                height, bottom_y, top_y = update_reference(totem, index)
                 cluster.append(totem[j])
                 index += 1
 
